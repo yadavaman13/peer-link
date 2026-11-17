@@ -1,6 +1,7 @@
 import http from 'http';
 import app from './src/app.js';
 import { ENV } from './src/config/env.config.js';
+import { connectDB, disconnectDB } from './src/config/db.js';
 import { WorkerService } from './src/services/mediasoup/index.js';
 import { attachWebSocketServer, getWSS } from './src/signaling/ws.server.js';
 import { logger } from './src/shared/logger.js';
@@ -8,13 +9,16 @@ import { logger } from './src/shared/logger.js';
 const httpServer = http.createServer(app);
 
 async function start() {
-  // 1. Initialize mediasoup Worker
+  // 1. Connect Database
+  await connectDB();
+
+  // 2. Initialize mediasoup Worker
   await WorkerService.init();
 
-  // 2. Attach WebSocket signaling server
+  // 3. Attach WebSocket signaling server
   attachWebSocketServer(httpServer);
 
-  // 3. Start HTTP server
+  // 4. Start HTTP server
   httpServer.listen(ENV.PORT, () => {
     logger.info(`Server running on port ${ENV.PORT} [${ENV.NODE_ENV}]`);
     logger.info(`WebSocket ready at ws://localhost:${ENV.PORT}`);
@@ -30,8 +34,9 @@ function shutdown(signal) {
     wss.clients.forEach((ws) => ws.terminate());
   }
 
-  httpServer.close(() => {
+  httpServer.close(async () => {
     logger.info('HTTP server closed');
+    await disconnectDB();
     WorkerService.close();
     logger.info('mediasoup Worker closed');
     process.exit(0);
