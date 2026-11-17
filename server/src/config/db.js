@@ -1,42 +1,24 @@
 import mongoose from 'mongoose';
 import envConfig from './env.config.js';
-import { logger } from '../shared/logger.js';
-
-let isConnected = false;
 
 export async function connectDB() {
-  if (isConnected) {
-    return;
-  }
-
+  if (mongoose.connection.readyState === 1) return;
   try {
-    const conn = await mongoose.connect(envConfig.MONGO_URL, {
-      serverSelectionTimeoutMS: 5000,
-    });
-    isConnected = true;
-    logger.info(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    logger.error(`MongoDB Connection Error: ${error.message}`);
-    if (envConfig.IS_PRODUCTION) {
-      throw error;
-    }
+    await mongoose.connect(envConfig.MONGO_URL);
+    console.log('DB connected successfully!');
+  } catch (err) {
+    console.error('Error connecting DB:', err);
   }
 }
 
 export async function disconnectDB() {
-  if (!isConnected) return;
+  if (mongoose.connection.readyState === 0) return;
   try {
     await mongoose.connection.close();
-    isConnected = false;
-    logger.info('MongoDB disconnected');
-  } catch (error) {
-    logger.error(`Error disconnecting MongoDB: ${error.message}`);
+    console.log('DB disconnected successfully!');
+  } catch (err) {
+    console.error('Error disconnecting DB:', err);
   }
 }
-
-mongoose.connection.on('disconnected', () => {
-  isConnected = false;
-  logger.warn('MongoDB connection lost');
-});
 
 export default { connectDB, disconnectDB };

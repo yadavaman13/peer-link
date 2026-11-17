@@ -23,10 +23,11 @@ import { sendEmail } from '../../../services/mail/mail.service.js';
  */
 export function sendTokenResponse(res, statusCode, message, user, rememberMe = false) {
   const userId = user.id || (user._id ? user._id.toString() : '');
+  const role = user.role || (typeof user.get === 'function' ? user.get('role') : null) || 'USER';
   const expiresIn = rememberMe ? '30d' : (envConfig.JWT_EXPIRES_IN || '7d');
 
   const token = jwt.sign(
-    { id: userId, email: user.email, role: user.role },
+    { id: userId, email: user.email, role },
     envConfig.JWT_SECRET_KEY,
     { expiresIn }
   );
@@ -51,10 +52,10 @@ export function sendTokenResponse(res, statusCode, message, user, rememberMe = f
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      role: user.role,
-      profileImage: user.profileImage,
-      isActive: user.isActive,
-      emailVerified: user.emailVerified,
+      role,
+      profileImage: user.profileImage || null,
+      isActive: user.isActive !== undefined ? user.isActive : true,
+      emailVerified: !!user.emailVerified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       isGoogleUser: !!user.googleId,
@@ -305,7 +306,11 @@ export async function login(req, res, next) {
  */
 export async function logout(req, res, next) {
   try {
-    const token = req.token || (req.cookies && req.cookies.token);
+    let token = req.token || (req.cookies && req.cookies.token);
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
     if (!token) {
       return sendResponse({
         res,
@@ -985,7 +990,7 @@ export async function getMe(req, res, next) {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.role,
+        role: user.role || 'USER',
         profileImage: user.profileImage,
         isActive: user.isActive,
         emailVerified: user.emailVerified,
