@@ -7,15 +7,15 @@ const redis = new Redis({
   password: envConfig.REDIS_PASSWORD || undefined,
 
   connectTimeout: 5000,
+  lazyConnect: true,
 
   retryStrategy(times) {
-    const maxRetries = envConfig.IS_PRODUCTION ? 10 : 3;
+    const maxRetries = envConfig.IS_PRODUCTION ? 10 : 2;
     if (times > maxRetries) {
-      console.warn('Redis retry attempts exhausted - continuing in offline mode');
       return null;
     }
 
-    const delay = Math.min(times * 200, 2000);
+    const delay = Math.min(times * 200, 1000);
     return delay;
   },
 
@@ -45,7 +45,10 @@ redis.on('end', () => {
 });
 
 redis.on('error', (err) => {
-  console.error('Redis error:', err.message);
+  // Suppress verbose reconnect errors in dev/test when Redis is optional
+  if (envConfig.IS_PRODUCTION) {
+    console.error('Redis error:', err.message);
+  }
 });
 
 export default redis;
