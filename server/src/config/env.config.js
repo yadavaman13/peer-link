@@ -88,9 +88,7 @@ const envConfig = {
 
   isAllowedClientOrigin(origin, callback) {
     const allowed =
-      !origin ||
-      clientOrigins.includes('*') ||
-      clientOrigins.includes(normalizeOrigin(origin));
+      !origin || clientOrigins.includes('*') || clientOrigins.includes(normalizeOrigin(origin));
 
     if (typeof callback === 'function') {
       callback(null, allowed);

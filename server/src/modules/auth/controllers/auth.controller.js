@@ -24,17 +24,13 @@ import { sendEmail } from '../../../services/mail/mail.service.js';
 export function sendTokenResponse(res, statusCode, message, user, rememberMe = false) {
   const userId = user.id || (user._id ? user._id.toString() : '');
   const role = user.role || (typeof user.get === 'function' ? user.get('role') : null) || 'USER';
-  const expiresIn = rememberMe ? '30d' : (envConfig.JWT_EXPIRES_IN || '7d');
+  const expiresIn = rememberMe ? '30d' : envConfig.JWT_EXPIRES_IN || '7d';
 
-  const token = jwt.sign(
-    { id: userId, email: user.email, role },
-    envConfig.JWT_SECRET_KEY,
-    { expiresIn }
-  );
+  const token = jwt.sign({ id: userId, email: user.email, role }, envConfig.JWT_SECRET_KEY, {
+    expiresIn,
+  });
 
-  const maxAge = rememberMe
-    ? 30 * 24 * 60 * 60 * 1000
-    : 7 * 24 * 60 * 60 * 1000;
+  const maxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
   res.cookie('token', token, {
     ...envConfig.AUTH_COOKIE_OPTIONS,
@@ -130,7 +126,7 @@ export async function register(req, res, next) {
     const hashedPassword = await bcrypt.hash(passwordValue, 10);
 
     let mappedRole = 'USER';
-    if (role && (role.toUpperCase() === 'ADMIN')) {
+    if (role && role.toUpperCase() === 'ADMIN') {
       mappedRole = 'ADMIN';
     }
 
@@ -233,17 +229,13 @@ export async function login(req, res, next) {
 
     if (user.isDeleted) {
       const now = new Date();
-      const recoveryExpiresAt = user.recoveryExpiresAt
-        ? new Date(user.recoveryExpiresAt)
-        : null;
+      const recoveryExpiresAt = user.recoveryExpiresAt ? new Date(user.recoveryExpiresAt) : null;
 
       if (!recoveryExpiresAt || now <= recoveryExpiresAt) {
         const daysRemaining = recoveryExpiresAt
           ? Math.max(
               0,
-              Math.ceil(
-                (recoveryExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-              )
+              Math.ceil((recoveryExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
             )
           : 15;
 
@@ -274,8 +266,7 @@ export async function login(req, res, next) {
         statusCode: 400,
         success: false,
         isGoogleUser: true,
-        message:
-          'This account is registered with Google Sign-In. Please sign in using Google.',
+        message: 'This account is registered with Google Sign-In. Please sign in using Google.',
       });
     }
 
@@ -289,13 +280,7 @@ export async function login(req, res, next) {
       });
     }
 
-    return sendTokenResponse(
-      res,
-      200,
-      'Login successful.',
-      user,
-      !!(rememberMe || remember)
-    );
+    return sendTokenResponse(res, 200, 'Login successful.', user, !!(rememberMe || remember));
   } catch (error) {
     next(error);
   }

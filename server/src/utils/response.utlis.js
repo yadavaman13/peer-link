@@ -8,13 +8,7 @@
  * @param {boolean} [options.success=true] - Success flag
  * @param {Object} [extra] - Any additional properties to include in the response payload
  */
-export function sendResponse({
-  res,
-  statusCode = 200,
-  message = '',
-  success = true,
-  ...extra
-}) {
+export function sendResponse({ res, statusCode = 200, message = '', success = true, ...extra }) {
   const payload = {
     success,
     message,
