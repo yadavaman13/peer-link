@@ -16,14 +16,14 @@ async function start() {
 
   // 3. Start HTTP server
   httpServer.listen(ENV.PORT, () => {
-    logger.info(`🚀 Server running on port ${ENV.PORT} [${ENV.NODE_ENV}]`);
-    logger.info(`🔌 WebSocket ready at ws://localhost:${ENV.PORT}`);
+    logger.info(`Server running on port ${ENV.PORT} [${ENV.NODE_ENV}]`);
+    logger.info(`WebSocket ready at ws://localhost:${ENV.PORT}`);
   });
 }
 
 // ─── Graceful shutdown ───
 function shutdown(signal) {
-  logger.warn(`${signal} received — shutting down gracefully`);
+  logger.warn(`${signal} received - shutting down gracefully`);
 
   const wss = getWSS();
   if (wss) {

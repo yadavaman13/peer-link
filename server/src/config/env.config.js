@@ -8,8 +8,7 @@ function normalizeOrigin(origin = '') {
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Client Origins config
-const clientOriginsEnv =
-  process.env.CLIENT_ORIGINS || process.env.ALLOWED_CLIENT_ORIGIN || 'http://localhost:5173,http://localhost:3000';
+const clientOriginsEnv = process.env.CLIENT_ORIGINS || process.env.ALLOWED_CLIENT_ORIGIN || 'http://localhost:5173,http://localhost:3000';
 const clientOrigins = clientOriginsEnv.split(',').map(normalizeOrigin).filter(Boolean);
 
 if (isProduction && !process.env.CLIENT_ORIGINS && !process.env.ALLOWED_CLIENT_ORIGIN) {
