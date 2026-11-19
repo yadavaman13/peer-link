@@ -6,10 +6,13 @@ import { logger } from '../shared/logger.js';
 const rooms = new Map();
 
 export const RoomService = {
-  async create() {
-    const id = uuidv4();
+  async create(metadata = {}) {
+    const id = metadata.roomId || metadata.id || uuidv4();
+    if (rooms.has(id)) {
+      return rooms.get(id);
+    }
     const router = await RouterService.create(WorkerService.get());
-    const room = new Room(id, router);
+    const room = new Room(id, router, metadata);
     rooms.set(id, room);
     logger.info(`Room created [${id}]`);
     return room;
@@ -41,6 +44,7 @@ export const RoomService = {
       roomId: r.id,
       participants: r.size,
       createdAt: r.createdAt,
+      createdBy: r.createdBy,
     }));
   },
 

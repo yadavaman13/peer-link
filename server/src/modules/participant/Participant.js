@@ -1,7 +1,9 @@
 export class Participant {
-  constructor(id, socket) {
+  constructor(id, socket, user = null) {
     this.id = id;
     this.socket = socket;
+    this.user = user;
+    this.userId = user?.id || user?._id?.toString() || null;
     this.roomId = null;
     this.sendTransport = null;
     this.recvTransport = null;

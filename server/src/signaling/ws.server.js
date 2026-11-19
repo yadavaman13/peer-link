@@ -3,15 +3,33 @@ import { ParticipantService } from '../services/participant.service.js';
 import { routeMessage } from './message.router.js';
 import { S2C } from '../shared/constants.js';
 import { logger } from '../shared/logger.js';
+import { verifyToken } from '../modules/auth/utils/jwt.js';
 
 let wss = null;
 
 export function attachWebSocketServer(httpServer) {
   wss = new WebSocketServer({ server: httpServer });
 
-  wss.on('connection', (ws) => {
-    const participant = ParticipantService.createParticipant(ws);
-    logger.info(`WS connected [${participant.id}]`);
+  wss.on('connection', (ws, req) => {
+    let authUser = null;
+    try {
+      if (req?.url) {
+        const url = new URL(req.url, `http://${req.headers?.host || 'localhost'}`);
+        const token =
+          url.searchParams.get('token') ||
+          (req.headers?.authorization && req.headers.authorization.startsWith('Bearer ')
+            ? req.headers.authorization.split(' ')[1]
+            : null);
+        if (token) {
+          authUser = verifyToken(token);
+        }
+      }
+    } catch (err) {
+      logger.warn(`WS connection token invalid: ${err.message}`);
+    }
+
+    const participant = ParticipantService.createParticipant(ws, authUser);
+    logger.info(`WS connected [${participant.id}]${authUser ? ` (user: ${authUser.id})` : ''}`);
 
     ws.on('message', async (raw) => {
       let requestId;

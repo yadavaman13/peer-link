@@ -1,67 +1,92 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import http from 'http';
+import request from 'supertest';
 import app from '../../src/app.js';
 import { RoomService } from '../../src/services/room.service.js';
+import { connectDB } from '../../src/config/db.js';
+import { User } from '../../src/models/user.model.js';
+import { createAndLoginTestUser } from '../helpers/auth-helper.js';
 
 describe('Room Routes Integration', () => {
-  let server;
-  let baseUrl;
+  let authUser;
 
   beforeAll(async () => {
-    server = http.createServer(app);
-    await new Promise((resolve) => server.listen(0, resolve));
-    const port = server.address().port;
-    baseUrl = `http://127.0.0.1:${port}`;
+    await connectDB();
+    authUser = await createAndLoginTestUser({
+      email: `room_int_${Date.now()}@room-int.peerlink.dev`,
+    });
   });
 
   afterAll(async () => {
     RoomService.clearAll();
-    await new Promise((resolve) => server.close(resolve));
+    try {
+      await User.deleteMany({ email: { $regex: /@room-int\.peerlink\.dev$/i } });
+    } catch (_) {}
   });
 
-  it('POST /api/rooms creates a new room', async () => {
-    const res = await fetch(`${baseUrl}/api/rooms`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-    });
+  it('POST /api/rooms returns 401 when unauthenticated', async () => {
+    const res = await request(app).post('/api/rooms').send({});
+
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/rooms returns 401 when unauthenticated', async () => {
+    const res = await request(app).get('/api/rooms');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/rooms/:id returns 401 when unauthenticated', async () => {
+    const res = await request(app).get('/api/rooms/00000000-0000-0000-0000-000000000000');
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /api/rooms creates a new room with authentication', async () => {
+    const res = await request(app)
+      .post('/api/rooms')
+      .set('Authorization', authUser.authHeader)
+      .send({});
 
     expect(res.status).toBe(201);
-    const data = await res.json();
-    expect(data.roomId).toBeDefined();
-    expect(data.createdAt).toBeDefined();
+    expect(res.body.roomId).toBeDefined();
+    expect(res.body.createdAt).toBeDefined();
+    expect(res.body.createdBy).toBe(authUser.user._id.toString());
   });
 
-  it('GET /api/rooms lists all created rooms', async () => {
-    const res = await fetch(`${baseUrl}/api/rooms`);
-    expect(res.status).toBe(200);
+  it('GET /api/rooms lists all created rooms with authentication', async () => {
+    const res = await request(app).get('/api/rooms').set('Authorization', authUser.authHeader);
 
-    const data = await res.json();
-    expect(data.count).toBeGreaterThanOrEqual(1);
-    expect(Array.isArray(data.rooms)).toBe(true);
+    expect(res.status).toBe(200);
+    expect(res.body.count).toBeGreaterThanOrEqual(1);
+    expect(Array.isArray(res.body.rooms)).toBe(true);
   });
 
-  it('GET /api/rooms/:id gets room details', async () => {
-    const created = await RoomService.create();
+  it('GET /api/rooms/:id gets room details with authentication', async () => {
+    const created = await RoomService.create({ createdBy: authUser.user._id.toString() });
 
-    const res = await fetch(`${baseUrl}/api/rooms/${created.id}`);
+    const res = await request(app)
+      .get(`/api/rooms/${created.id}`)
+      .set('Authorization', authUser.authHeader);
+
     expect(res.status).toBe(200);
-
-    const data = await res.json();
-    expect(data.roomId).toBe(created.id);
-    expect(data.participants).toBe(0);
+    expect(res.body.roomId).toBe(created.id);
+    expect(res.body.participants).toBe(0);
+    expect(res.body.createdBy).toBe(authUser.user._id.toString());
   });
 
   it('GET /api/rooms/:id returns 404 for valid UUID but non-existent room', async () => {
     const randomUuid = '00000000-0000-0000-0000-000000000000';
-    const res = await fetch(`${baseUrl}/api/rooms/${randomUuid}`);
+    const res = await request(app)
+      .get(`/api/rooms/${randomUuid}`)
+      .set('Authorization', authUser.authHeader);
+
     expect(res.status).toBe(404);
   });
 
   it('GET /api/rooms/:id returns 400 for invalid UUID', async () => {
-    const res = await fetch(`${baseUrl}/api/rooms/invalid-id`);
+    const res = await request(app)
+      .get('/api/rooms/invalid-id')
+      .set('Authorization', authUser.authHeader);
+
     expect(res.status).toBe(400);
-    const data = await res.json();
-    expect(data.status).toBe('error');
+    expect(res.body.status).toBe('error');
   });
 });

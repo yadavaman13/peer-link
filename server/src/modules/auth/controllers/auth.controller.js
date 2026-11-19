@@ -23,10 +23,9 @@ import { sendEmail } from '../../../services/mail/mail.service.js';
  */
 export function sendTokenResponse(res, statusCode, message, user, rememberMe = false) {
   const userId = user.id || (user._id ? user._id.toString() : '');
-  const role = user.role || (typeof user.get === 'function' ? user.get('role') : null) || 'USER';
   const expiresIn = rememberMe ? '30d' : envConfig.JWT_EXPIRES_IN || '7d';
 
-  const token = jwt.sign({ id: userId, email: user.email, role }, envConfig.JWT_SECRET_KEY, {
+  const token = jwt.sign({ id: userId, email: user.email }, envConfig.JWT_SECRET_KEY, {
     expiresIn,
   });
 
@@ -48,7 +47,7 @@ export function sendTokenResponse(res, statusCode, message, user, rememberMe = f
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      role,
+      role: user.role || 'USER',
       profileImage: user.profileImage || null,
       isActive: user.isActive !== undefined ? user.isActive : true,
       emailVerified: !!user.emailVerified,
@@ -125,18 +124,12 @@ export async function register(req, res, next) {
 
     const hashedPassword = await bcrypt.hash(passwordValue, 10);
 
-    let mappedRole = 'USER';
-    if (role && role.toUpperCase() === 'ADMIN') {
-      mappedRole = 'ADMIN';
-    }
-
     const user = await User.create({
       email: normalizedEmail,
       password: hashedPassword,
       firstName: firstNameValue,
       lastName: lastNameValue,
       profileImage: profileImage || null,
-      role: mappedRole,
       emailVerified,
       isActive: true,
       isDeleted: false,

@@ -12,6 +12,7 @@ const HANDLER_MAP = {
   [C2S.CONSUME]: handlers.consume,
   [C2S.CONSUMER_RESUME]: handlers.consumerResume,
   [C2S.LEAVE_ROOM]: handlers.leaveRoom,
+  [C2S.END_MEETING]: handlers.endMeeting,
 };
 
 export async function routeMessage(message, participant) {

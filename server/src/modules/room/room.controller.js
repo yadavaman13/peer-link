@@ -4,8 +4,15 @@ import { AppError } from '../../shared/AppError.js';
 
 export const RoomController = {
   create: asyncHandler(async (req, res) => {
-    const room = await RoomService.create();
-    res.status(201).json({ roomId: room.id, createdAt: room.createdAt });
+    const room = await RoomService.create({
+      createdBy: req.user?._id?.toString() || req.user?.id || null,
+      maxParticipants: req.body?.maxParticipants,
+    });
+    res.status(201).json({
+      roomId: room.id,
+      createdAt: room.createdAt,
+      createdBy: room.createdBy,
+    });
   }),
 
   getById: asyncHandler(async (req, res) => {
@@ -15,6 +22,7 @@ export const RoomController = {
       roomId: room.id,
       participants: room.size,
       createdAt: room.createdAt,
+      createdBy: room.createdBy,
     });
   }),
 

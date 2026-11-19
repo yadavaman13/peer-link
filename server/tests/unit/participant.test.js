@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { jest } from '@jest/globals';
 import { Participant } from '../../src/modules/participant/index.js';
 
 describe('Participant', () => {
   it('initializes with default properties', () => {
-    const mockSocket = { readyState: 1, send: vi.fn() };
+    const mockSocket = { readyState: 1, send: jest.fn() };
     const p = new Participant('part-1', mockSocket);
 
     expect(p.id).toBe('part-1');
@@ -16,7 +16,7 @@ describe('Participant', () => {
   });
 
   it('sends message when socket is OPEN (1)', () => {
-    const mockSocket = { readyState: 1, send: vi.fn() };
+    const mockSocket = { readyState: 1, send: jest.fn() };
     const p = new Participant('part-1', mockSocket);
 
     p.send('TEST_EVENT', { foo: 'bar' });
@@ -26,7 +26,7 @@ describe('Participant', () => {
   });
 
   it('does not send message when socket is closed', () => {
-    const mockSocket = { readyState: 3 /* CLOSED */, send: vi.fn() };
+    const mockSocket = { readyState: 3 /* CLOSED */, send: jest.fn() };
     const p = new Participant('part-1', mockSocket);
 
     p.send('TEST_EVENT', { foo: 'bar' });
@@ -34,13 +34,13 @@ describe('Participant', () => {
   });
 
   it('cleans up all producers, consumers, and transports on close', () => {
-    const mockSocket = { readyState: 1, send: vi.fn() };
+    const mockSocket = { readyState: 1, send: jest.fn() };
     const p = new Participant('part-1', mockSocket);
 
-    const closeProducer = vi.fn();
-    const closeConsumer = vi.fn();
-    const closeSendTransport = vi.fn();
-    const closeRecvTransport = vi.fn();
+    const closeProducer = jest.fn();
+    const closeConsumer = jest.fn();
+    const closeSendTransport = jest.fn();
+    const closeRecvTransport = jest.fn();
 
     p.producers.set('prod-1', { close: closeProducer });
     p.consumers.set('cons-1', { close: closeConsumer });

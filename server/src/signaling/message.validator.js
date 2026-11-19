@@ -26,6 +26,7 @@ const SCHEMAS = {
     if (!p?.consumerId) throw AppError.badRequest('consumerId is required');
   },
   LEAVE_ROOM: () => true,
+  END_MEETING: () => true,
 };
 
 export function validateMessage(type, payload) {

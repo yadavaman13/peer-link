@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { RoomService } from '../../src/services/room.service.js';
 
 describe('RoomService', () => {

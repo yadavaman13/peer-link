@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import http from 'http';
 import { WebSocket } from 'ws';
 import app from '../../src/app.js';
