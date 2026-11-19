@@ -1,0 +1,58 @@
+:root {
+  /* Surface & Background */
+  --bg-primary: #ffffff;
+  --bg-secondary: #fafafa;
+  --bg-tertiary: #f4f4f5;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f4f4f5;
+  --bg-overlay: rgba(0, 0, 0, 0.45);
+
+  /* Typography & Ink */
+  --text-primary: #09090b;
+  --text-secondary: #71717a;
+  --text-tertiary: #a1a1aa;
+  --text-inverse: #ffffff;
+  --text-muted: #a1a1aa;
+
+  /* Borders & Dividers */
+  --border-light: #f4f4f5;
+  --border-color: #e4e4e7;
+  --border-dark: #18181b;
+  --border-hover: #a1a1aa;
+
+  /* Accents & States */
+  --accent-black: #18181b;
+  --accent-black-hover: #09090b;
+  --accent-gray: #f4f4f5;
+  --accent-gray-hover: #e4e4e7;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --danger-light: #fef2f2;
+  --success: #10b981;
+  --success-light: #ecfdf5;
+  --warning: #f59e0b;
+
+  /* Focus ring */
+  --focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px #18181b;
+
+  /* Layout & Geometry */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* Shadows (subtle, clean, non-bloated) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+  /* Font Families */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* Navbar & Dock Dimensions */
+  --navbar-height: 56px;
+  --controls-bar-height: 72px;
+}

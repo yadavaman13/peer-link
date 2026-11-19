@@ -1,0 +1,96 @@
+.health-indicator-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.health-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.health-badge-btn:hover {
+  border-color: var(--border-dark);
+  color: var(--text-primary);
+}
+
+.health-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dot-online {
+  background-color: var(--success);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.dot-error {
+  background-color: var(--danger);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.health-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.health-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  padding: 12px 14px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.health-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+
+.health-popover-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.health-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.health-stat-label {
+  color: var(--text-secondary);
+}
+
+.health-stat-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
